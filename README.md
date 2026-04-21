@@ -1,35 +1,37 @@
-# YouTube Transcriber 🎥 -> 📝
+# Universal Media Transcriber 🎥 -> 📝
 
-[RU] Автоматическая транскрибация YouTube-видео в текст с использованием локальной модели Whisper и красивым интерфейсом.  
-[EN] Automatic YouTube video transcription to text using a local Whisper model with a beautiful UI.
+[RU] Автоматическая транскрибация видео и аудио в текст из любых социальных сетей (YouTube, TikTok, Instagram, VK, Facebook и др.).  
+[EN] Automatic transcription of video and audio to text from any social network (YouTube, TikTok, Instagram, VK, Facebook, etc.).
 
 ---
 
 ## 🇷🇺 Русский (RU)
 
 ### Особенности
-- **Интерактивность**: Просто запустите скрипт, и он сам спросит ссылку.
-- **Цветной Прогресс-бар**: Динамическая индикация (Красный 🔴 -> Оранжевый 🟠 -> Желтый 🟡 -> Зеленый 🟢).
-- **Без внешних зависимостей**: Работает без `ffmpeg` в системе.
-- **Приватность**: Все вычисления происходят локально.
+- **Универсальность**: Поддержка YouTube, TikTok, Instagram, VK, Facebook и сотен других сайтов.
+- **Интерактивность**: Можно вставить ссылку прямо в консоль после запуска.
+- **Цветной Прогресс-бар**: Динамическая индикация статуса работы.
+- **Без внешних зависимостей**: Не требует установки `ffmpeg` в систему.
 
 ### Использование
 1. Установите зависимости: `uv sync`
 2. Запустите: `uv run python main.py`
+3. Вставьте ссылку по запросу.
 
 ---
 
 ## 🇺🇸 English (EN)
 
 ### Features
-- **Interactive**: Just run the script, and it will prompt you for the URL.
-- **Colored Progress Bar**: Dynamic completion states (Red 🔴 -> Orange 🟠 -> Yellow 🟡 -> Green 🟢).
-- **No System dependencies**: Works without system-wide `ffmpeg`.
-- **Privacy**: All computations are handled locally.
+- **Universal**: Supports YouTube, TikTok, Instagram, VK, Facebook, and hundreds of other sites.
+- **Interactive**: Paste the URL directly into the console after launching.
+- **Colored Progress Bar**: Dynamic work status indication.
+- **Self-contained**: No system-wide `ffmpeg` required.
 
 ### Usage
 1. Install dependencies: `uv sync`
 2. Run: `uv run python main.py`
+3. Paste the link when prompted.
 
 ---
 
