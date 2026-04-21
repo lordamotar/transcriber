@@ -1,47 +1,35 @@
 # YouTube Transcriber 🎥 -> 📝
 
-[RU] Автоматическая транскрибация YouTube-видео в текст с использованием локальной модели Whisper.  
-[EN] Automatic YouTube video transcription to text using a local Whisper model.
+[RU] Автоматическая транскрибация YouTube-видео в текст с использованием локальной модели Whisper и красивым интерфейсом.  
+[EN] Automatic YouTube video transcription to text using a local Whisper model with a beautiful UI.
 
 ---
 
 ## 🇷🇺 Русский (RU)
 
 ### Особенности
-- **Без внешних зависимостей**: Работает без установки `ffmpeg` в систему (использует встроенный декодер).
-- **Производительность**: Оптимизировано через `faster-whisper` для работы на CPU.
+- **Интерактивность**: Просто запустите скрипт, и он сам спросит ссылку.
+- **Цветной Прогресс-бар**: Динамическая индикация (Красный 🔴 -> Оранжевый 🟠 -> Желтый 🟡 -> Зеленый 🟢).
+- **Без внешних зависимостей**: Работает без `ffmpeg` в системе.
 - **Приватность**: Все вычисления происходят локально.
 
-### Установка
-Рекомендуется использовать [uv](https://github.com/astral-sh/uv):
-```bash
-uv sync
-```
-
 ### Использование
-```bash
-uv run python main.py "URL_ВИДЕО"
-```
+1. Установите зависимости: `uv sync`
+2. Запустите: `uv run python main.py`
 
 ---
 
 ## 🇺🇸 English (EN)
 
 ### Features
-- **No System dependencies**: Works without system-wide `ffmpeg` installation (uses built-in decoder).
-- **Performance**: Optimized via `faster-whisper` for efficient CPU usage.
+- **Interactive**: Just run the script, and it will prompt you for the URL.
+- **Colored Progress Bar**: Dynamic completion states (Red 🔴 -> Orange 🟠 -> Yellow 🟡 -> Green 🟢).
+- **No System dependencies**: Works without system-wide `ffmpeg`.
 - **Privacy**: All computations are handled locally.
 
-### Installation
-Using [uv](https://github.com/astral-sh/uv) is recommended:
-```bash
-uv sync
-```
-
 ### Usage
-```bash
-uv run python main.py "VIDEO_URL"
-```
+1. Install dependencies: `uv sync`
+2. Run: `uv run python main.py`
 
 ---
 
@@ -58,4 +46,5 @@ If this tool helped you, you can show your support:
 ## 🛠️ Технологии / Built with
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
+- [rich](https://github.com/Textualize/rich)
 - [uv](https://github.com/astral-sh/uv)
