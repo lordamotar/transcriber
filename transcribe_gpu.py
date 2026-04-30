@@ -64,9 +64,17 @@ def clean_filename(filename):
 
 def check_cuda(lang_dict):
     if not torch.cuda.is_available():
-        return questionary.confirm(lang_dict["no_gpu"]).ask()
+        console.print(lang_dict["no_gpu"])
+        return questionary.confirm("Продолжить? / Continue?").ask()
     console.print(lang_dict["gpu_found"].format(torch.cuda.get_device_name(0)))
     return True
+
+def format_timestamp(seconds: float):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    millis = int((seconds - int(seconds)) * 1000)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
 
 def download_audio(url, progress, task_id, lang_dict):
     ydl_opts = {
@@ -100,20 +108,30 @@ def transcribe_audio(audio_path, model, progress, task_id, lang_dict):
         progress.update(task_id, description=f"[bold cyan]{lang_dict['transcribing']}...[/bold cyan]")
         segments, info = model.transcribe(audio_path, beam_size=5)
         total_duration = info.duration
+        
         full_text = []
+        srt_lines = []
         start_points = progress.tasks[task_id].completed
-        for segment in segments:
+        
+        for i, segment in enumerate(segments, start=1):
             full_text.append(segment.text)
+            
+            # Формируем SRT
+            start_ts = format_timestamp(segment.start)
+            end_ts = format_timestamp(segment.end)
+            srt_lines.append(f"{i}\n{start_ts} --> {end_ts}\n{segment.text.strip()}\n")
+            
             if total_duration > 0:
                 sub_progress = (segment.end / total_duration) * 75
                 current_total = min(start_points + sub_progress, 99)
                 color = get_bar_color(current_total)
                 progress.update(task_id, completed=current_total, 
                                 description=f"[bold {color}]{lang_dict['transcribing']} ({int(current_total)}%)...[/bold {color}]")
-        return " ".join(full_text)
+                                
+        return " ".join(full_text), "\n".join(srt_lines)
     except Exception as e:
         console.print(lang_dict["error_transcribe"].format(e))
-        return None
+        return None, None
 
 def process_url(url, model, lang_dict):
     with Progress(
@@ -124,13 +142,22 @@ def process_url(url, model, lang_dict):
         task_id = progress.add_task(f"...", total=100)
         audio_path, video_title = download_audio(url, progress, task_id, lang_dict)
         if not audio_path: return
-        text = transcribe_audio(audio_path, model, progress, task_id, lang_dict)
-        if text:
+        
+        text, srt_text = transcribe_audio(audio_path, model, progress, task_id, lang_dict)
+        
+        if text and srt_text:
             progress.update(task_id, description=lang_dict["saving"])
-            output_filename = f"{clean_filename(video_title)}.txt"
-            with open(output_filename, "w", encoding="utf-8") as f: f.write(text)
+            
+            safe_title = clean_filename(video_title)
+            txt_filename = f"{safe_title}.txt"
+            srt_filename = f"{safe_title}.srt"
+            
+            with open(txt_filename, "w", encoding="utf-8") as f: f.write(text)
+            with open(srt_filename, "w", encoding="utf-8") as f: f.write(srt_text)
+            
             progress.update(task_id, completed=100, description=lang_dict["done"])
-            console.print(lang_dict["success"].format(output_filename))
+            console.print(lang_dict["success"].format(f"{txt_filename} + {srt_filename}"))
+            
         if audio_path and os.path.exists(audio_path):
             try: os.remove(audio_path)
             except: pass
