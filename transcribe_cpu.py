@@ -16,6 +16,9 @@ STRINGS = {
     "ru": {
         "title": "🌟 Универсальный Транскрибатор [CPU]",
         "select_model": "Выберите качество (модель):",
+        "ask_timestamps": "Добавить таймкоды (SRT)?",
+        "with_timestamps": "Да (сохранить TXT и SRT)",
+        "no_timestamps": "Нет (только чистый TXT)",
         "input_prompt": "\n[bold yellow]🔗 Вставьте ссылку ИЛИ путь к .txt файлу со списком ссылок[/bold yellow]",
         "file_detected": "[bold blue]📂 Обнаружен файл со списком. Чтение...[/bold blue]",
         "links_found": "[bold blue]Найдено ссылок: {}[/bold blue]",
@@ -35,6 +38,9 @@ STRINGS = {
     "en": {
         "title": "🌟 Universal Transcriber [CPU]",
         "select_model": "Select quality (model):",
+        "ask_timestamps": "Include timestamps (SRT)?",
+        "with_timestamps": "Yes (save TXT and SRT)",
+        "no_timestamps": "No (save only clean TXT)",
         "input_prompt": "\n[bold yellow]🔗 Paste URL OR path to .txt file with links[/bold yellow]",
         "file_detected": "[bold blue]📂 File detected. Reading...[/bold blue]",
         "links_found": "[bold blue]Links found: {}[/bold blue]",
@@ -123,7 +129,7 @@ def transcribe_audio(audio_path, model, progress, task_id, lang_dict):
         console.print(lang_dict["error_transcribe"].format(e))
         return None, None
 
-def process_url(url, model, lang_dict):
+def process_url(url, model, lang_dict, include_srt):
     with Progress(
         SpinnerColumn(), TextColumn("{task.description}"), BarColumn(bar_width=40),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"), TimeElapsedColumn(),
@@ -135,18 +141,25 @@ def process_url(url, model, lang_dict):
         
         text, srt_text = transcribe_audio(audio_path, model, progress, task_id, lang_dict)
         
-        if text and srt_text:
+        if text:
             progress.update(task_id, description=lang_dict["saving"])
             
+            result_dir = "result"
+            os.makedirs(result_dir, exist_ok=True)
+            
             safe_title = clean_filename(video_title)
-            txt_filename = f"{safe_title}.txt"
-            srt_filename = f"{safe_title}.srt"
+            txt_filename = os.path.join(result_dir, f"{safe_title}.txt")
             
             with open(txt_filename, "w", encoding="utf-8") as f: f.write(text)
-            with open(srt_filename, "w", encoding="utf-8") as f: f.write(srt_text)
+            saved_files = txt_filename
+            
+            if include_srt and srt_text:
+                srt_filename = os.path.join(result_dir, f"{safe_title}.srt")
+                with open(srt_filename, "w", encoding="utf-8") as f: f.write(srt_text)
+                saved_files += f" + {srt_filename}"
             
             progress.update(task_id, completed=100, description=lang_dict["done"])
-            console.print(lang_dict["success"].format(f"{txt_filename} + {srt_filename}"))
+            console.print(lang_dict["success"].format(saved_files))
             
         if audio_path and os.path.exists(audio_path):
             try: os.remove(audio_path)
@@ -179,6 +192,17 @@ def main():
 
     if not model_size: return
 
+    # 1.5. Выбор таймкодов (SRT)
+    include_srt = questionary.select(
+        lang["ask_timestamps"],
+        choices=[
+            questionary.Choice(lang["with_timestamps"], value=True),
+            questionary.Choice(lang["no_timestamps"], value=False),
+        ]
+    ).ask()
+
+    if include_srt is None: return
+
     # 2. Ввод
     user_input = Prompt.ask(lang["input_prompt"]).strip()
 
@@ -204,7 +228,7 @@ def main():
     for i, url in enumerate(urls, 1):
         if len(urls) > 1:
             console.print(lang["processing_video"].format(i, len(urls)))
-        process_url(url, model, lang)
+        process_url(url, model, lang, include_srt)
 
 if __name__ == "__main__":
     try: main()
